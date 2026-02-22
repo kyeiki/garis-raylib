@@ -230,24 +230,9 @@ Semua variasi garis dibangun di atas `DDALine()` sebagai primitif dasar.
 
 ### 2a. Garis Putus-putus (Dashed)
 
-**Ide:** Gambar segmen DDA aktif sepanjang `dashLen`, lompati `gapLen`, ulangi bergantian.
+**Ide:** Modifikasi algoritma dasar DDA dengan menambahkan penghitung (counter) langkah integer. Selama langkah masih di bawah `dashLen`, piksel digambar. Setelah melampauinya, penggambaran dimatikan selama `gapLen`, lalu diulangi bergantian secara kontinu tanpa harus menghitung ulang panjang garis dengan `sqrt`.
 
-**Contoh:** Garis dari (0, 0) ke (100, 0), dash=20, gap=10
-
-```
-length = sqrt(100² + 0²) = 100
-nx = 100/100 = 1.0,   ny = 0.0/100 = 0.0
-
-Iterasi segmen:
-  traveled=0  → seg=20 (draw):  DDALine dari (0,0) ke (20,0)  ████████████████████
-  traveled=20 → seg=10 (skip):  loncat ke (30,0)               ___________
-  traveled=30 → seg=20 (draw):  DDALine dari (30,0) ke (50,0) ████████████████████
-  traveled=50 → seg=10 (skip):  loncat ke (60,0)               ___________
-  traveled=60 → seg=20 (draw):  DDALine dari (60,0) ke (80,0) ████████████████████
-  traveled=80 → seg=10 (skip):  loncat ke (90,0)               ___________
-  traveled=90 → seg=10 (draw):  DDALine dari (90,0) ke (100,0) ██████████  (sisa)
-```
-
+**Contoh Visual:** Garis dari (0, 0) ke (100, 0), dash=20, gap=10
 Hasil visual: `████████████████████___________████████████████████___________████████████████████`
 
 ### 2b. Garis Tebal (Thick Line via DDA)
@@ -278,22 +263,13 @@ Hasilnya 5 garis horizontal yang rapat = garis tebal 5px.
 
 ### 2c. Garis Dash-Dot
 
-Pola berulang dengan 4 fase:
+Sama halnya dengan Dashed Line, pola ini menghindari iterasi berbasis panjang jarak floating-point demi performa. Polanya diformulasikan ulang meggunakan *state-machine* dengan array batasan fase:
 
 ```
-phases[] = { 18, 5, 5, 5 }    ← panjang fase dalam piksel
+phases[] = { 18, 5, 5, 5 }    ← target jumlah langkah per fase
 drawPh[] = {  1, 0, 1, 0 }    ← 1=gambar, 0=lewati
 
-Contoh garis panjang 80px:
-  fase 0: traveled=0  → 18px DRAW  (garis panjang)  ──────────────────
-  fase 1: traveled=18 →  5px skip                             _____
-  fase 2: traveled=23 →  5px DRAW  (titik)                        ─────
-  fase 3: traveled=28 →  5px skip                                       _____
-  fase 0: traveled=33 → 18px DRAW  (garis panjang)                           ──────────────────
-  fase 1: traveled=51 →  5px skip                                                        _____
-  fase 2: traveled=56 →  5px DRAW  (titik)                                                    ─────
-  fase 3: traveled=61 →  5px skip  (sisa 14px)
-  fase 0: traveled=66 → 14px DRAW  (garis, dipotong sisa)                                         ──────────────
+Algoritma mengiterasi satu langkah DDA/Piksel demi langkah, seraya menambah counter. Jika counter mencapai target `phases`, index `phase` bergeser ke fase berikutnya.
 ```
 
 ---
@@ -414,25 +390,13 @@ void BresenhamLine(int x1, int y1, int x2, int y2, Color color) {
 
 ## Program 4 — Style Garis dengan Bresenham
 
-Sama dengan Program 2, namun **setiap segmen menggunakan `BresenhamLine()`** sebagai pengganti `DDALine()`.
+Sama dengan Program 2, gaya garis seperti Dashed maupun Dash-Dot diimplementasikan terintegrasi di dalam **perulangan keputusan error Bresenham utama** sepenuhnya menggunakan kalkulasi integer.
 
-### Perbandingan: DDA vs Bresenham pada Segmen Dash
+### Keunggulan: Bebas Fungsi Akar (Floating-Point)
 
-**DDA** menggambar segmen (30, 100) ke (50, 100):
-```
-dx=20, dy=0, steps=max(20,0)=20
-xInc=1.0, yInc=0.0
-Setiap langkah: x += 1.0, y += 0.0
-Perhitungan: 20× operasi float (tambah + roundf)
-```
+Pada implementasi garis putus-putus awam yang naif, program sering memecah segmen dan menghitung jaraknya menggunakan rumus jarak Euclidean `sqrt(dx² + dy²)` yang memakan komputasi berat (*floating-point*). 
 
-**Bresenham** menggambar segmen yang sama (30, 100) ke (50, 100):
-```
-dx=20, dy=0, sx=1, sy=1, err=20−0=20
-Setiap langkah: e2=2×20=40, 40>−0 ✓ → x+=1, err−=0=20; 40<20? ✗
-Perhitungan: 20× operasi integer (perkalian 2, perbandingan, pengurangan)
-Tidak ada float, tidak ada round → lebih cepat di hardware lama
-```
+Dengan optimasi iterasi yang kita lakukan, Dashed Bresenham secara eksklusif menggunakan algoritma *decision parameter* `err` untuk memutuskan penambahan koordinat piksel dan menggunakan *integer counter++* sederhana untuk menentukan state visibilitas (gambar / bolong). Dengan kata lain, logika garis gaya kini **bebas sepenuhnya** kalkulasi perhitungan floating-point dan operasi akar.
 
 ---
 
