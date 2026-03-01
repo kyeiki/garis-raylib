@@ -1,6 +1,6 @@
 # Grafika Komputer — Algoritma DDA, Bresenham & Midpoint Circle
 
-Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan lima program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
+Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan enam program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
 
 > **Catatan penting:** Tidak ada fungsi gambar garis/lingkaran bawaan Raylib yang digunakan. Setiap piksel digambar menggunakan `DrawPixel()` dari implementasi DDA, Bresenham, atau Midpoint Circle yang ditulis sendiri.
 
@@ -15,6 +15,7 @@ Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasi
 | 3 | Bresenham | Diagram Kartesian — garis lurus pada sumbu XY |
 | 4 | Bresenham | Berbagai style garis (normal, dash, tebal, dash-dot) |
 | 5 | Midpoint Circle | Lingkaran dengan 8-way symmetry (integer only) |
+| 6 | Midpoint Circle | Flower of Life Pattern — pola geometri sakral |
 
 ---
 
@@ -43,11 +44,13 @@ Kode sumber dipisah menjadi modul-modul yang mandiri:
 │   ├── program3.h + program3.c   ← Bresenham Kartesian
 │   ├── program4.h + program4.c   ← Bresenham Style Garis
 │   ├── program5.h + program5.c   ← Midpoint Circle
+│   ├── program6.h + program6.c   ← Flower of Life Pattern
 │   ├── about.h + about.c         ← Halaman About
 │   └── menu.h + menu.c           ← Menu Utama
 │
 ├── docs/
-│   └── PROGRAM5_MIDCIRCLE.md     ← Dokumentasi algoritma Midpoint Circle
+│   ├── PROGRAM5_MIDCIRCLE.md     ← Dokumentasi algoritma Midpoint Circle
+│   └── PROGRAM6_FLOWER_OF_LIFE.md ← Dokumentasi Flower of Life Pattern
 │
 ├── Makefile                      ← Build Linux/macOS (pkg-config)
 ├── Makefile.win                  ← Build Windows (MinGW + raylib manual)
@@ -78,7 +81,7 @@ Pastikan Raylib sudah diunduh dan sesuaikan path di `Makefile.win` (lihat koment
 
 | Tombol | Fungsi |
 |--------|--------|
-| `1` – `5` | Membuka program |
+| `1` – `6` | Membuka program |
 | `A` | Membuka halaman About |
 | `ESC` atau `BACKSPACE` | Kembali ke menu |
 | Klik tombol `< BACK` | Kembali ke menu (mouse) |
@@ -498,6 +501,50 @@ void Midcircle(int centerX, int centerY, int radius, Color color) {
 | `MidcircleFilled()` | Lingkaran berisi (solid) |
 | `MidcircleThick()` | Lingkaran dengan ketebalan |
 | `MidcircleDashed()` | Lingkaran putus-putus |
+
+---
+
+## Program 6 — Flower of Life Pattern
+
+### Konsep Matematika
+
+**Flower of Life** adalah pola geometri sakral yang terdiri dari banyak lingkaran yang saling beririsan. Pola ini dibentuk dengan:
+- 1 lingkaran pusat
+- 6 lingkaran "kelopak" yang berpusat di tepi lingkaran pusat
+- Jarak pusat kelopak ke pusat utama = radius lingkaran
+
+### Struktur Pola
+
+```
+        Utara (0, -R)
+           ●
+           │
+Barat ●────●────● Timur
+(-R,0) │    │    (R, 0)
+       │    │
+        ●────●
+        Selatan (0, R)
+```
+
+### Koordinat 6 Kelopak
+
+| Arah | Offset X | Offset Y |
+|------|----------|----------|
+| Utara | 0 | -R |
+| Selatan | 0 | +R |
+| Timur | +R | 0 |
+| Barat | -R | 0 |
+| Timur Laut | +R×0.866 | -R/2 |
+| Barat Daya | -R×0.866 | +R/2 |
+| Barat Laut | -R×0.866 | -R/2 |
+| Tenggara | +R×0.866 | +R/2 |
+
+### Implementasi
+
+Program6 menggunakan fungsi [`Midcircle()`](src/algo/midcircle.c:39) untuk menggambar:
+1. Lingkaran pusat (putih)
+2. 6-8 lingkaran kelopak dengan warna berbeda
+3. Grid kartesian sebagai referensi
 
 ---
 
