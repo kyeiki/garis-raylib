@@ -6,6 +6,7 @@
 #include "src/screens/program2.h"
 #include "src/screens/program3.h"
 #include "src/screens/program4.h"
+#include "src/screens/program5.h"
 #include "src/screens/about.h"
 
 int main(void) {
@@ -22,6 +23,7 @@ int main(void) {
             if (IsKeyPressed(KEY_TWO)   || IsKeyPressed(KEY_KP_2)) current = PROGRAM2;
             if (IsKeyPressed(KEY_THREE) || IsKeyPressed(KEY_KP_3)) current = PROGRAM3;
             if (IsKeyPressed(KEY_FOUR)  || IsKeyPressed(KEY_KP_4)) current = PROGRAM4;
+            if (IsKeyPressed(KEY_FIVE)  || IsKeyPressed(KEY_KP_5)) current = PROGRAM5;
             if (IsKeyPressed(KEY_A)) current = ABOUT;
             Vector2 m = GetMousePosition();
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
@@ -37,6 +39,7 @@ int main(void) {
             case PROGRAM2: DrawProgram2(); break;
             case PROGRAM3: DrawProgram3(); break;
             case PROGRAM4: DrawProgram4(); break;
+            case PROGRAM5: DrawProgram5(); break;
             case ABOUT:    DrawAbout();    break;
         }
         EndDrawing();
