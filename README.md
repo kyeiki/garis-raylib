@@ -1,8 +1,8 @@
-# Grafika Komputer — Algoritma DDA & Bresenham
+# Grafika Komputer — Algoritma DDA, Bresenham & Midpoint Circle
 
-Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan empat program gambar garis berbasis algoritma rasterisasi klasik.
+Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan lima program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
 
-> **Catatan penting:** Tidak ada fungsi gambar garis bawaan Raylib yang digunakan. Setiap piksel digambar menggunakan `DrawPixel()` dari implementasi DDA atau Bresenham yang ditulis sendiri.
+> **Catatan penting:** Tidak ada fungsi gambar garis/lingkaran bawaan Raylib yang digunakan. Setiap piksel digambar menggunakan `DrawPixel()` dari implementasi DDA, Bresenham, atau Midpoint Circle yang ditulis sendiri.
 
 ---
 
@@ -14,6 +14,7 @@ Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasi
 | 2 | DDA | Berbagai style garis (normal, dash, tebal, dash-dot) |
 | 3 | Bresenham | Diagram Kartesian — garis lurus pada sumbu XY |
 | 4 | Bresenham | Berbagai style garis (normal, dash, tebal, dash-dot) |
+| 5 | Midpoint Circle | Lingkaran dengan 8-way symmetry (integer only) |
 
 ---
 
@@ -28,7 +29,8 @@ Kode sumber dipisah menjadi modul-modul yang mandiri:
 │
 ├── src/algo/
 │   ├── dda.h + dda.c             ← DDALine, DDA_DashedLine, DDA_ThickLine, DDA_DashDotLine
-│   └── bresenham.h + bresenham.c ← BresenhamLine, Bres_DashedLine, Bres_ThickLine, Bres_DashDotLine
+│   ├── bresenham.h + bresenham.c ← BresenhamLine, Bres_DashedLine, Bres_ThickLine, Bres_DashDotLine
+│   └── midcircle.h + midcircle.c ← Midcircle, MidcircleFilled, MidcircleThick, MidcircleDashed
 │
 ├── src/ui/
 │   ├── primitives.h + primitives.c     ← DrawDot
@@ -40,8 +42,12 @@ Kode sumber dipisah menjadi modul-modul yang mandiri:
 │   ├── program2.h + program2.c   ← DDA Style Garis
 │   ├── program3.h + program3.c   ← Bresenham Kartesian
 │   ├── program4.h + program4.c   ← Bresenham Style Garis
+│   ├── program5.h + program5.c   ← Midpoint Circle
 │   ├── about.h + about.c         ← Halaman About
 │   └── menu.h + menu.c           ← Menu Utama
+│
+├── docs/
+│   └── PROGRAM5_MIDCIRCLE.md     ← Dokumentasi algoritma Midpoint Circle
 │
 ├── Makefile                      ← Build Linux/macOS (pkg-config)
 ├── Makefile.win                  ← Build Windows (MinGW + raylib manual)
@@ -72,7 +78,7 @@ Pastikan Raylib sudah diunduh dan sesuaikan path di `Makefile.win` (lihat koment
 
 | Tombol | Fungsi |
 |--------|--------|
-| `1` – `4` | Membuka program |
+| `1` – `5` | Membuka program |
 | `A` | Membuka halaman About |
 | `ESC` atau `BACKSPACE` | Kembali ke menu |
 | Klik tombol `< BACK` | Kembali ke menu (mouse) |
@@ -400,19 +406,113 @@ Dengan optimasi iterasi yang kita lakukan, Dashed Bresenham secara eksklusif men
 
 ---
 
-## Perbandingan DDA vs Bresenham
+## Program 5 — Algoritma Midpoint Circle
 
-| Aspek | DDA | Bresenham |
-|-------|-----|-----------|
-| Tipe data | `float` | `int` saja |
-| Operasi per langkah | tambah float, `roundf()` | ×2, perbandingan, tambah int |
-| Kemungkinan error | Round-off float pada garis panjang | Tidak ada — integer exact |
-| Kemudahan dipahami | Sangat mudah | Perlu memahami decision parameter |
-| Kecepatan relatif | Lambat (FPU) | Cepat (ALU integer) |
-| Cocok untuk | Edukasi, prototyping | Produksi, embedded, GPU pipeline |
-| Jumlah piksel (contoh 5px) | 6 piksel | 6 piksel — **sama** |
+### Konsep Matematika
 
-> Jumlah piksel biasanya identik. Perbedaan ada pada **efisiensi komputasi**, bukan visual.
+**Algoritma Midpoint Circle** (juga dikenal sebagai Bresenham Circle Algorithm) menggambar lingkaran menggunakan hanya operasi integer, tanpa perhitungan floating-point atau fungsi trigonometri.
+
+#### 8-Way Symmetry
+
+Lingkaran memiliki simetri pada 8 bagian. Dengan menghitung satu titik (x, y), kita bisa mendapatkan 8 titik lainnya secara gratis:
+
+```
+(cx + x, cy + y)  ← Oktan 1      (cx - x, cy - y)  ← Oktan 5
+(cx + y, cy + x)  ← Oktan 2      (cx - y, cy - x)  ← Oktan 6
+(cx + y, cy - x)  ← Oktan 3      (cx - y, cy + x)  ← Oktan 7
+(cx + x, cy - y)  ← Oktan 4      (cx - x, cy + y)  ← Oktan 8
+```
+
+Dengan demikian, kita hanya perlu menghitung 1/8 lingkaran (oktan pertama), dan sisanya didapat dari simetri.
+
+### Algoritma
+
+**Inisialisasi:**
+```
+x = 0
+y = r
+d = 3 - 2 × r    ← Decision parameter awal
+```
+
+**Iterasi** (untuk setiap langkah dari x = 0 hingga x ≥ y):
+
+1. Plot 8 titik simetri
+2. Evaluasi decision parameter:
+   - Jika `d < 0`: Pilih titik **E (East)** → `d = d + 4×x + 6`
+   - Jika `d ≥ 0`: Pilih titik **SE (South-East)** → `d = d + 4×(x - y) + 10` dan `y--`
+3. Increment: `x++`
+
+### Contoh Perhitungan — Lingkaran r = 5
+
+**Inisialisasi:** `x = 0, y = 5, d = 3 - 2×5 = -7`
+
+| Langkah | x | y | d | Kondisi | Aksi |
+|---------|---|---|---|---------|------|
+| 0 | 0 | 5 | -7 | d < 0 | E: d = -7 + 0 + 6 = -1 |
+| 1 | 1 | 5 | -1 | d < 0 | E: d = -1 + 4 + 6 = 9 |
+| 2 | 2 | 5 | 9 | d ≥ 0 | SE: d = 9 + 4(2-5) + 10 = 7, y=4 |
+| 3 | 3 | 4 | 7 | d ≥ 0 | SE: d = 7 + 4(3-4) + 10 = 13, y=3 |
+| 4 | 4 | 3 | - | - | **BERHENTI** (x ≥ y) |
+
+### Implementasi C
+
+```c
+// File: src/algo/midcircle.c
+void Midcircle(int centerX, int centerY, int radius, Color color) {
+    if (radius <= 0) {
+        DrawPixel(centerX, centerY, color);
+        return;
+    }
+    
+    int x = 0;
+    int y = radius;
+    int d = 3 - 2 * radius;  // Decision parameter awal
+    
+    while (y >= x) {
+        // Plot 8 titik simetri
+        DrawPixel(centerX + x, centerY + y, color);
+        DrawPixel(centerX + y, centerY + x, color);
+        DrawPixel(centerX + y, centerY - x, color);
+        DrawPixel(centerX + x, centerY - y, color);
+        DrawPixel(centerX - x, centerY - y, color);
+        DrawPixel(centerX - y, centerY - x, color);
+        DrawPixel(centerX - y, centerY + x, color);
+        DrawPixel(centerX - x, centerY + y, color);
+        
+        if (d < 0) {
+            d = d + 4 * x + 6;
+        } else {
+            d = d + 4 * (x - y) + 10;
+            y--;
+        }
+        x++;
+    }
+}
+```
+
+### Variasi Lingkaran
+
+| Fungsi | Deskripsi |
+|--------|-----------|
+| `Midcircle()` | Lingkaran standar (outline) |
+| `MidcircleFilled()` | Lingkaran berisi (solid) |
+| `MidcircleThick()` | Lingkaran dengan ketebalan |
+| `MidcircleDashed()` | Lingkaran putus-putus |
+
+---
+
+## Perbandingan DDA vs Bresenham vs Midcircle
+
+| Aspek | DDA | Bresenham | Midcircle |
+|-------|-----|-----------|-----------|
+| Tipe data | `float` | `int` saja | `int` saja |
+| Operasi per langkah | tambah float, `roundf()` | ×2, perbandingan, tambah int | ×4, perbandingan, tambah int |
+| Kemungkinan error | Round-off float pada garis panjang | Tidak ada — integer exact | Tidak ada — integer exact |
+| Kemudahan dipahami | Sangat mudah | Perlu memahami decision parameter | Perlu memahami 8-way symmetry |
+| Kecepatan relatif | Lambat (FPU) | Cepat (ALU integer) | Cepat (ALU integer) |
+| Cocok untuk | Edukasi, prototyping | Produksi, embedded, GPU pipeline | Produksi, embedded, GPU pipeline |
+
+> Jumlah piksel biasanya identik untuk garis. Perbedaan ada pada **efisiensi komputasi**, bukan visual.
 
 ---
 
@@ -423,7 +523,7 @@ Satu-satunya fungsi Raylib untuk menggambar:
 DrawPixel(x, y, color);   // menempatkan satu piksel di koordinat layar
 ```
 
-Semua garis, pola, titik endpoint, grid, dan avatar di halaman About dibangun dari fungsi kustom di atas `DrawPixel()`.
+Semua garis, lingkaran, pola, titik endpoint, grid, dan avatar di halaman About dibangun dari fungsi kustom di atas `DrawPixel()`.
 
 ---
 
