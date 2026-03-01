@@ -1,6 +1,6 @@
 # Grafika Komputer — Algoritma DDA, Bresenham & Midpoint Circle
 
-Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan enam program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
+Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan tujuh program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
 
 > **Catatan penting:** Tidak ada fungsi gambar garis/lingkaran bawaan Raylib yang digunakan. Setiap piksel digambar menggunakan `DrawPixel()` dari implementasi DDA, Bresenham, atau Midpoint Circle yang ditulis sendiri.
 
@@ -16,6 +16,7 @@ Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasi
 | 4 | Bresenham | Berbagai style garis (normal, dash, tebal, dash-dot) |
 | 5 | Midpoint Circle | Lingkaran dengan 8-way symmetry (integer only) |
 | 6 | Midpoint Circle | Flower of Life Pattern — pola geometri sakral |
+| 7 | Midpoint Circle | Animated Flower of Life — transisi lingkaran ke lensa |
 
 ---
 
@@ -45,6 +46,7 @@ Kode sumber dipisah menjadi modul-modul yang mandiri:
 │   ├── program4.h + program4.c   ← Bresenham Style Garis
 │   ├── program5.h + program5.c   ← Midpoint Circle
 │   ├── program6.h + program6.c   ← Flower of Life Pattern
+│   ├── program7.h + program7.c   ← Animated Flower of Life
 │   ├── about.h + about.c         ← Halaman About
 │   └── menu.h + menu.c           ← Menu Utama
 │
@@ -81,7 +83,7 @@ Pastikan Raylib sudah diunduh dan sesuaikan path di `Makefile.win` (lihat koment
 
 | Tombol | Fungsi |
 |--------|--------|
-| `1` – `6` | Membuka program |
+| `1` – `7` | Membuka program |
 | `A` | Membuka halaman About |
 | `ESC` atau `BACKSPACE` | Kembali ke menu |
 | Klik tombol `< BACK` | Kembali ke menu (mouse) |
@@ -545,6 +547,59 @@ Program6 menggunakan fungsi [`Midcircle()`](src/algo/midcircle.c:39) untuk mengg
 1. Lingkaran pusat (putih)
 2. 6-8 lingkaran kelopak dengan warna berbeda
 3. Grid kartesian sebagai referensi
+
+---
+
+## Program 7 — Lingkaran ke Vesica Piscis
+
+### Konsep
+
+Program7 menampilkan animasi transisi dari **lingkaran penuh** ke **Vesica Piscis** (bentuk lensa/almond) menggunakan teknik pemotongan sudut dinamis.
+
+### Apa itu Vesica Piscis?
+
+**Vesica Piscis** (Latin: "kantung ikan") adalah bentuk lensa yang terbentuk dari irisan dua lingkaran dengan radius sama, di mana pusat masing-masing lingkaran terletak di tepi lingkaran lainnya.
+
+```
+    Lingkaran 1       Vesica Piscis       Lingkaran 2
+       ○ ────────────── ◢◣ ────────────── ○
+                 (bentuk lensa)
+```
+
+### Properti Matematis
+
+| Properti | Nilai |
+|----------|-------|
+| Busur dari setiap lingkaran | 120° (2/3 π radian) |
+| Rasio lebar:tinggi | √3 : 1 |
+| Luas | (2π/3 - √3/2) × r² |
+
+### Algoritma Animasi Geometris
+
+Kunci animasi adalah perubahan **halfArc** (setengah busur) secara dinamis:
+
+```c
+void DrawVesicaPiscisAnim(int cx1, int cy1, int cx2, int cy2, int r, float animProgress, Color col) {
+    float angleToCenter = atan2f(dy, dx);
+    
+    // Saat animProgress = 0.0, halfArc = 180° → Lingkaran Penuh (360°)
+    // Saat animProgress = 1.0, halfArc = 60°  → Vesica Piscis (120°)
+    float targetHalfArc = PI / 3.0f;  // 60 derajat
+    float currentHalfArc = PI - (animProgress * (PI - targetHalfArc));
+    
+    // Gambar busur dari kedua lingkaran
+    DrawArcFromAngle(cx1, cy1, r, angleToCenter - currentHalfArc, angleToCenter + currentHalfArc, col);
+    DrawArcFromAngle(cx2, cy2, r, angleToCenter + PI - currentHalfArc, angleToCenter + PI + currentHalfArc, col);
+}
+```
+
+### Fase Animasi
+
+| Fase | Progress | halfArc | Busur | Deskripsi |
+|------|----------|---------|-------|-----------|
+| 1 | 0% - 30% | 180° | 360° | Lingkaran penuh ditahan |
+| 2 | 30% - 70% | 180° → 60° | 360° → 120° | Pemotongan busur dinamis |
+| 3 | 70% - 100% | 60° | 120° | Vesica Piscis penuh ditahan |
 
 ---
 
