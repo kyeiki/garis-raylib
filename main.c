@@ -10,6 +10,7 @@
 #include "src/screens/program6.h"
 #include "src/screens/program7.h"
 #include "src/screens/program8.h"
+#include "src/screens/program9.h"
 #include "src/screens/about.h"
 
 int main(void) {
@@ -30,6 +31,7 @@ int main(void) {
             if (IsKeyPressed(KEY_SIX)   || IsKeyPressed(KEY_KP_6)) current = PROGRAM6;
             if (IsKeyPressed(KEY_SEVEN) || IsKeyPressed(KEY_KP_7)) current = PROGRAM7;
             if (IsKeyPressed(KEY_EIGHT) || IsKeyPressed(KEY_KP_8)) current = PROGRAM8;
+            if (IsKeyPressed(KEY_NINE)  || IsKeyPressed(KEY_KP_9)) current = PROGRAM9;
             if (IsKeyPressed(KEY_A)) current = ABOUT;
             
             // Handle mouse click on program cards
@@ -42,6 +44,7 @@ int main(void) {
             if (clicked == 6) current = PROGRAM6;
             if (clicked == 7) current = PROGRAM7;
             if (clicked == 8) current = PROGRAM8;
+            if (clicked == 9) current = PROGRAM9;
             
             Vector2 m = GetMousePosition();
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) &&
@@ -61,6 +64,7 @@ int main(void) {
             case PROGRAM6: DrawProgram6(); break;
             case PROGRAM7: DrawProgram7(); break;
             case PROGRAM8: DrawProgram8(); break;
+            case PROGRAM9: DrawProgram9(); break;
             case ABOUT:    DrawAbout();    break;
         }
         EndDrawing();

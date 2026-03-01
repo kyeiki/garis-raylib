@@ -1,6 +1,6 @@
 # Grafika Komputer — Algoritma DDA, Bresenham & Midpoint Circle
 
-Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan delapan program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
+Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan sembilan program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
 
 > **Catatan penting:** Tidak ada fungsi gambar garis/lingkaran bawaan Raylib yang digunakan. Setiap piksel digambar menggunakan `DrawPixel()` dari implementasi DDA, Bresenham, atau Midpoint Circle yang ditulis sendiri.
 
@@ -18,6 +18,7 @@ Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasi
 | 6 | Midpoint Circle | Flower of Life Pattern — pola geometri sakral |
 | 7 | Midpoint Circle | Animated Flower of Life — transisi lingkaran ke lensa |
 | 8 | Midpoint Circle | Vesica Piscis (4 Kelopak Murni) — tanpa lingkaran tengah |
+| 9 | Midpoint Circle | Vesica Piscis (4 Arah Mata Angin) — metode pergeseran titik jari-jari |
 
 ---
 
@@ -49,6 +50,7 @@ Kode sumber dipisah menjadi modul-modul yang mandiri:
 │   ├── program6.h + program6.c   ← Flower of Life Pattern
 │   ├── program7.h + program7.c   ← Animated Flower of Life
 │   ├── program8.h + program8.c   ← Vesica Piscis Statis
+│   ├── program9.h + program9.c   ← Vesica Piscis Pergeseran Jari-Jari
 │   ├── about.h + about.c         ← Halaman About
 │   └── menu.h + menu.c           ← Menu Utama
 │
@@ -56,7 +58,9 @@ Kode sumber dipisah menjadi modul-modul yang mandiri:
 │   ├── PROGRAM5_MIDCIRCLE.md     ← Dokumentasi algoritma Midpoint Circle
 │   ├── PROGRAM6_FLOWER_OF_LIFE.md ← Dokumentasi Flower of Life Pattern
 │   ├── PROGRAM7_VESICA_PISCIS.md ← Dokumentasi Animated Vesica Piscis
-│   └── PROGRAM8_VESICA_PISCIS_STATIS.md ← Dokumentasi Vesica Piscis Statis
+│   ├── PROGRAM8_VESICA_PISCIS_STATIS.md ← Dokumentasi Vesica Piscis Statis
+│   ├── PROGRAM9_QUARTER_ARC_VESICA.md   ← Dokumentasi Vesica Piscis Pergeseran Jari-Jari
+│   └── PROGRAM8_VS_PROGRAM9_PERBANDINGAN.md ← Perbandingan Program 8 & 9
 │
 ├── Makefile                      ← Build Linux/macOS (pkg-config)
 ├── Makefile.win                  ← Build Windows (MinGW + raylib manual)
@@ -87,7 +91,7 @@ Pastikan Raylib sudah diunduh dan sesuaikan path di `Makefile.win` (lihat koment
 
 | Tombol | Fungsi |
 |--------|--------|
-| `1` – `8` | Membuka program |
+| `1` – `9` | Membuka program |
 | `A` | Membuka halaman About |
 | `ESC` atau `BACKSPACE` | Kembali ke menu |
 | Klik tombol `< BACK` | Kembali ke menu (mouse) |
@@ -622,7 +626,55 @@ void DrawVesicaPiscisAnim(int cx1, int cy1, int cx2, int cy2, int r, float animP
 
 ---
 
-## Primitif yang Digunakan
+## Program 8 — Vesica Piscis (4 Kelopak Murni)
+
+### Konsep
+
+Program 8 menggambar 4 kelopak Vesica Piscis yang berpangkal di `(cx, cy)`, menggunakan pendekatan **pangkal-ke-ujung**: titik pangkal ditetapkan terlebih dahulu, lalu posisi pusat lingkaran C1 dan C2 dihitung menggunakan trigonometri dari titik tengah kelopak `PM`.
+
+Lihat dokumentasi lengkap: [PROGRAM8_VESICA_PISCIS_STATIS.md](docs/PROGRAM8_VESICA_PISCIS_STATIS.md)
+
+---
+
+## Program 9 — Vesica Piscis (Pergeseran Titik Jari-Jari)
+
+### Konsep
+
+Program 9 menggambar 4 lensa Vesica Piscis menghadap 4 arah mata angin, semua ujung dalam bertemu di titik `(0, 0)`. Menggunakan pendekatan **pergeseran titik jari-jari**: titik TENGAH lensa ditetapkan terlebih dahulu, lalu dua pusat lingkaran C1 dan C2 digeser masing-masing sejauh `r/2`.
+
+### Algoritma Pergeseran
+
+```
+Diberikan: titik tengah lensa (mx, my), jari-jari r, sudut sumbu-pendek angle
+
+C1 = (mx − r/2·cos(angle),  my − r/2·sin(angle))
+C2 = (mx + r/2·cos(angle),  my + r/2·sin(angle))
+
+Jarak C1–C2 = r  →  segitiga sama sisi → sudut pertemuan 60°
+→ Setiap busur = 120° (2 × 60°)
+```
+
+### Layout 4 Arah Mata Angin
+
+```
+      angle=0, pusat=(cx, cy−h)     ← h = R×√3/2
+              │
+              ▼
+   (cx−h) ───┼─── (cx+h)
+ angle=π/2   │   angle=π/2
+              ↑
+      angle=0, pusat=(cx, cy+h)
+```
+
+| Arah | Pusat Lensa | angle | Warna |
+|---|---|---|---|
+| Utara | `(cx, cy − R·√3/2)` | `0` | Merah |
+| Selatan | `(cx, cy + R·√3/2)` | `0` | Biru |
+| Timur | `(cx + R·√3/2, cy)` | `π/2` | Hijau |
+| Barat | `(cx − R·√3/2, cy)` | `π/2` | Oranye |
+
+Lihat dokumentasi lengkap: [PROGRAM9_QUARTER_ARC_VESICA.md](docs/PROGRAM9_QUARTER_ARC_VESICA.md)  
+Lihat perbandingan P8 vs P9: [PROGRAM8_VS_PROGRAM9_PERBANDINGAN.md](docs/PROGRAM8_VS_PROGRAM9_PERBANDINGAN.md)
 
 Satu-satunya fungsi Raylib untuk menggambar:
 ```c

@@ -27,7 +27,7 @@ void DrawMenu(void) {
     int cW = 450, cH = 85;
     int c1 = SCREEN_W/2 - cW - 15;
     int c2 = SCREEN_W/2 + 15;
-    int r1 = 95, r2 = 190, r3 = 285, r4 = 380;
+    int r1 = 95, r2 = 190, r3 = 285, r4 = 380, r5 = 475;
 
     Vector2 mouse = GetMousePosition();
     int mousePressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
@@ -144,8 +144,22 @@ void DrawMenu(void) {
     DrawText("[Tekan 8]", c2+cW-80, r4+cH-18, 12, (Color){255,200,100,255});
     if (hover8 && mousePressed) clickedProgram = 8;
 
+    // Program 9 - Quarter Arc Vesica Piscis
+    int hover9 = CheckCollisionPointRec(mouse, (Rectangle){c1, r5, cW, cH});
+    DrawRectangleRounded((Rectangle){c1,r5,cW,cH}, 0.1f, 8, hover9 ? (Color){20,55,75,255} : (Color){10,40,60,255});
+    DrawRectangleRoundedLines((Rectangle){c1,r5,cW,cH}, 0.1f, 8, hover9 ? WHITE : (Color){80,200,255,255});
+    DrawText("PROGRAM 9", c1+18, r5+8, 16, (Color){80,200,255,255});
+    DrawText("Vesica Piscis - Pergeseran Jari-Jari", c1+18, r5+28, 12, WHITE);
+    // Mini preview - busur seperempat + pergeseran
+    int a9cx = c1+85, a9cy = r5+52, a9r = 20;
+    Midcircle(a9cx - a9r/2, a9cy, a9r, (Color){80,200,255,60});
+    Midcircle(a9cx + a9r/2, a9cy, a9r, (Color){255,120,80,60});
+    DrawText("2 busur 120 deg, pusat digeser r/2", c1+18, r5+72, 10, LIGHTGRAY);
+    DrawText("[Tekan 9]", c1+cW-80, r5+cH-18, 12, (Color){80,200,255,255});
+    if (hover9 && mousePressed) clickedProgram = 9;
+
     // About button
-    int abBtnX = SCREEN_W/2 - 80, abBtnY = r4 + cH + 14;
+    int abBtnX = SCREEN_W/2 - 80, abBtnY = r5 + cH + 14;
     int abHover = CheckCollisionPointRec(mouse, (Rectangle){abBtnX, abBtnY, 160, 36});
     DrawRectangleRounded((Rectangle){abBtnX, abBtnY, 160, 36}, 0.3f, 6,
                          abHover ? (Color){60,100,180,230} : (Color){25,35,70,220});
@@ -156,6 +170,6 @@ void DrawMenu(void) {
     // Footer
     DrawRectangle(0, SCREEN_H-50, SCREEN_W, 50, (Color){15,15,35,255});
     DDALine(0, SCREEN_H-50, SCREEN_W, SCREEN_H-50, (Color){60,80,160,255});
-    DrawText("[1-8] Program  [A] About  |  [ESC] Keluar",
+    DrawText("[1-9] Program  [A] About  |  [ESC] Keluar",
              SCREEN_W/2-180, SCREEN_H-33, 16, GRAY);
 }
