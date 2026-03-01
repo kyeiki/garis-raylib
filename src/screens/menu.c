@@ -130,6 +130,20 @@ void DrawMenu(void) {
     DrawText("[Tekan 7]", c1+cW-80, r4+cH-18, 12, (Color){200,150,255,255});
     if (hover7 && mousePressed) clickedProgram = 7;
 
+    // Program 8 - Vesica Piscis (4 Kelopak Murni)
+    int hover8 = CheckCollisionPointRec(mouse, (Rectangle){c2, r4, cW, cH});
+    DrawRectangleRounded((Rectangle){c2,r4,cW,cH}, 0.1f, 8, hover8 ? (Color){70,50,30,255} : (Color){55,35,20,255});
+    DrawRectangleRoundedLines((Rectangle){c2,r4,cW,cH}, 0.1f, 8, hover8 ? WHITE : (Color){255,200,100,255});
+    DrawText("PROGRAM 8", c2+18, r4+8, 16, (Color){255,200,100,255});
+    DrawText("Vesica Piscis (4 Kelopak)", c2+18, r4+28, 12, WHITE);
+    // Mini preview - Vesica Piscis shapes
+    int a8cx = c2+85, a8cy = r4+52, a8r = 14;
+    Midcircle(a8cx, a8cy-a8r/2, a8r, RED);
+    Midcircle(a8cx, a8cy+a8r/2, a8r, BLUE);
+    DrawText("Tanpa lingkaran tengah", c2+18, r4+72, 10, LIGHTGRAY);
+    DrawText("[Tekan 8]", c2+cW-80, r4+cH-18, 12, (Color){255,200,100,255});
+    if (hover8 && mousePressed) clickedProgram = 8;
+
     // About button
     int abBtnX = SCREEN_W/2 - 80, abBtnY = r4 + cH + 14;
     int abHover = CheckCollisionPointRec(mouse, (Rectangle){abBtnX, abBtnY, 160, 36});
@@ -142,6 +156,6 @@ void DrawMenu(void) {
     // Footer
     DrawRectangle(0, SCREEN_H-50, SCREEN_W, 50, (Color){15,15,35,255});
     DDALine(0, SCREEN_H-50, SCREEN_W, SCREEN_H-50, (Color){60,80,160,255});
-    DrawText("[1-7] Program  [A] About  |  [ESC] Keluar",
+    DrawText("[1-8] Program  [A] About  |  [ESC] Keluar",
              SCREEN_W/2-180, SCREEN_H-33, 16, GRAY);
 }

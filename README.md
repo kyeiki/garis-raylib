@@ -1,6 +1,6 @@
 # Grafika Komputer — Algoritma DDA, Bresenham & Midpoint Circle
 
-Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan tujuh program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
+Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasikan delapan program gambar garis dan lingkaran berbasis algoritma rasterisasi klasik.
 
 > **Catatan penting:** Tidak ada fungsi gambar garis/lingkaran bawaan Raylib yang digunakan. Setiap piksel digambar menggunakan `DrawPixel()` dari implementasi DDA, Bresenham, atau Midpoint Circle yang ditulis sendiri.
 
@@ -17,6 +17,7 @@ Aplikasi desktop interaktif menggunakan **Raylib** dan **C** yang mendemonstrasi
 | 5 | Midpoint Circle | Lingkaran dengan 8-way symmetry (integer only) |
 | 6 | Midpoint Circle | Flower of Life Pattern — pola geometri sakral |
 | 7 | Midpoint Circle | Animated Flower of Life — transisi lingkaran ke lensa |
+| 8 | Midpoint Circle | Vesica Piscis (4 Kelopak Murni) — tanpa lingkaran tengah |
 
 ---
 
@@ -47,12 +48,15 @@ Kode sumber dipisah menjadi modul-modul yang mandiri:
 │   ├── program5.h + program5.c   ← Midpoint Circle
 │   ├── program6.h + program6.c   ← Flower of Life Pattern
 │   ├── program7.h + program7.c   ← Animated Flower of Life
+│   ├── program8.h + program8.c   ← Vesica Piscis Statis
 │   ├── about.h + about.c         ← Halaman About
 │   └── menu.h + menu.c           ← Menu Utama
 │
 ├── docs/
 │   ├── PROGRAM5_MIDCIRCLE.md     ← Dokumentasi algoritma Midpoint Circle
-│   └── PROGRAM6_FLOWER_OF_LIFE.md ← Dokumentasi Flower of Life Pattern
+│   ├── PROGRAM6_FLOWER_OF_LIFE.md ← Dokumentasi Flower of Life Pattern
+│   ├── PROGRAM7_VESICA_PISCIS.md ← Dokumentasi Animated Vesica Piscis
+│   └── PROGRAM8_VESICA_PISCIS_STATIS.md ← Dokumentasi Vesica Piscis Statis
 │
 ├── Makefile                      ← Build Linux/macOS (pkg-config)
 ├── Makefile.win                  ← Build Windows (MinGW + raylib manual)
@@ -83,7 +87,7 @@ Pastikan Raylib sudah diunduh dan sesuaikan path di `Makefile.win` (lihat koment
 
 | Tombol | Fungsi |
 |--------|--------|
-| `1` – `7` | Membuka program |
+| `1` – `8` | Membuka program |
 | `A` | Membuka halaman About |
 | `ESC` atau `BACKSPACE` | Kembali ke menu |
 | Klik tombol `< BACK` | Kembali ke menu (mouse) |
