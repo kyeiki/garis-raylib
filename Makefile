@@ -19,6 +19,7 @@ SRCS = main.c \
        src/screens/program4.c \
        src/screens/program30.c \
        src/screens/program31.c \
+       src/screens/program41.c \
        src/screens/about.c \
        src/screens/menu.c
 

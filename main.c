@@ -8,6 +8,7 @@
 #include "src/screens/program4.h"
 #include "src/screens/program30.h"
 #include "src/screens/program31.h"
+#include "src/screens/program41.h"
 #include "src/screens/about.h"
 
 int main(void) {
@@ -24,6 +25,7 @@ int main(void) {
             if (IsKeyPressed(KEY_TWO)   || IsKeyPressed(KEY_KP_2)) current = PROGRAM2;
             if (IsKeyPressed(KEY_THREE) || IsKeyPressed(KEY_KP_3)) current = PROGRAM3;
             if (IsKeyPressed(KEY_FOUR)  || IsKeyPressed(KEY_KP_4)) current = PROGRAM4;
+            if (IsKeyPressed(KEY_FIVE)  || IsKeyPressed(KEY_KP_5)) current = PROGRAM41;
             if (IsKeyPressed(KEY_ZERO)  || IsKeyPressed(KEY_KP_0)) current = PROGRAM30;
             if (IsKeyPressed(KEY_NINE)  || IsKeyPressed(KEY_KP_9)) current = PROGRAM31;
             if (IsKeyPressed(KEY_A)) current = ABOUT;
@@ -43,6 +45,7 @@ int main(void) {
             case PROGRAM4: DrawProgram4(); break;
             case PROGRAM30: DrawProgram30(); break;
             case PROGRAM31: DrawProgram31(); break;
+            case PROGRAM41: DrawProgram41(); break;
             case ABOUT:    DrawAbout();    break;
         }
         EndDrawing();

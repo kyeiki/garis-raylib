@@ -83,9 +83,19 @@ void DrawMenu(void) {
     DrawText("Algoritma Bresenham untuk elips", x3+18, r2+100, 12, LIGHTGRAY);
     DrawText("[Tekan 9]", x3+cW-90, r2+cH-24, 14, (Color){100,220,200,255});
 
-    // Row 3: About button
+    // Row 3: Program 41, About button
+    DrawRectangleRounded((Rectangle){startX,r3,cW,cH}, 0.1f, 8, (Color){50,40,15,255});
+    DrawRectangleRoundedLines((Rectangle){startX,r3,cW,cH}, 0.1f, 8, (Color){255,200,100,255});
+    DrawText("PROGRAM 41", startX+18, r3+12, 20, (Color){255,200,100,255});
+    DrawText("2D Transformations - Ellipse", startX+18, r3+38, 14, WHITE);
+    BresenhamEllipse(startX+70, r3+75, 40, 25, (Color){255,100,100,255});
+    BresenhamEllipse(startX+150, r3+85, 30, 20, (Color){100,255,100,255});
+    BresenhamEllipse(startX+200, r3+65, 25, 35, (Color){100,100,255,255});
+    DrawText("Translate, Scale, Rotate", startX+18, r3+100, 12, LIGHTGRAY);
+    DrawText("[Tekan 5]", startX+cW-90, r3+cH-24, 14, (Color){255,200,100,255});
+
     int abBtnW = 200, abBtnH = 40;
-    int abBtnX = SCREEN_W/2 - abBtnW/2, abBtnY = r3 + 10;
+    int abBtnX = SCREEN_W/2 - abBtnW/2 + 150, abBtnY = r3 + 45;
     Vector2 mouse = GetMousePosition();
     int abHover = CheckCollisionPointRec(mouse, (Rectangle){abBtnX, abBtnY, abBtnW, abBtnH});
     DrawRectangleRounded((Rectangle){abBtnX, abBtnY, abBtnW, abBtnH}, 0.3f, 6,
@@ -96,6 +106,6 @@ void DrawMenu(void) {
 
     DrawRectangle(0, SCREEN_H-45, SCREEN_W, 45, (Color){15,15,35,255});
     DDALine(0, SCREEN_H-45, SCREEN_W, SCREEN_H-45, (Color){60,80,160,255});
-    DrawText("[1-4] Program Garis  |  [0] P30 MidEllipse  |  [9] P31 BresEllipse  |  [A] About  |  [ESC] Keluar",
-             SCREEN_W/2-350, SCREEN_H-30, 14, GRAY);
+    DrawText("[1-4] Program Garis  |  [5] P41 Transform  |  [0] P30 MidEllipse  |  [9] P31 BresEllipse  |  [A] About  |  [ESC] Keluar",
+             SCREEN_W/2-400, SCREEN_H-30, 14, GRAY);
 }
